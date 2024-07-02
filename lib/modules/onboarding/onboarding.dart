@@ -1,7 +1,8 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:shop_app/modules/onboarding/login/loginscreen.dart';
+import 'package:shop_app/modules/login/loginscreen.dart';
+import 'package:shop_app/shared/helpers/cashhelper.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnboardingModel {
@@ -59,11 +60,13 @@ class _OnboardingState extends State<Onboarding> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(),
-                    ));
+                CashHelper.setData(key: "onboarding", value: false)
+                    .then((value) => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        )))
+                    .catchError((error) {});
               },
               child: Text(
                 "SKIP",
@@ -73,60 +76,63 @@ class _OnboardingState extends State<Onboarding> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: Column(children: [
+            Expanded(
+              child: PageView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(),
+                controller: onboardingcontroller,
+                itemBuilder: (context, index) =>
+                    onboardingwidget(onboardinglist[index]),
+                itemCount: onboardinglist.length,
+                onPageChanged: (value) {
+                  setState(() {
+                    pageIndex = value;
+                    if (pageIndex == onboardinglist.length - 1) {
+                      islast = true;
+                    } else {
+                      islast = false;
+                    }
+                  });
+                },
+              ),
+            ),
+            Row(
               children: [
-                Expanded(
-                  child: PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: BouncingScrollPhysics(),
-                    controller: onboardingcontroller,
-                    itemBuilder: (context, index) =>
-                        onboardingwidget(onboardinglist[index]),
-                    itemCount: onboardinglist.length,
-                    onPageChanged: (value) {
-                      setState(() {
-                        pageIndex = value;
-                        if (pageIndex == onboardinglist.length - 1) {
-                          islast = true;
-                        } else {
-                          islast = false;
-                        }
-                      });
-                    },
-                  ),
+                SmoothPageIndicator(
+                  controller: onboardingcontroller,
+                  count: onboardinglist.length,
+                  effect: const WormEffect(
+                      dotHeight: 12,
+                      dotWidth: 25,
+                      type: WormType.normal,
+                      activeDotColor: Colors.blue),
                 ),
-                Row(
-                  children: [
-                    SmoothPageIndicator(
-                      controller: onboardingcontroller,
-                      count: onboardinglist.length,
-                      effect: const WormEffect(
-                          dotHeight: 12,
-                          dotWidth: 25,
-                          type: WormType.normal,
-                          activeDotColor: Colors.blue),
-                    ),
-                    Spacer(),
-                    FloatingActionButton(
-                      onPressed: () {
-                        onboardingcontroller.nextPage(
-                            duration: Duration(
-                              milliseconds: 750,
-                            ),
-                            curve: Curves.easeInOut,);
-                        if (islast) {
-                          Navigator.pushReplacement(
+                Spacer(),
+                FloatingActionButton(
+                  onPressed: () {
+                    onboardingcontroller.nextPage(
+                      duration: Duration(
+                        milliseconds: 750,
+                      ),
+                      curve: Curves.easeInOut,
+                    );
+                    if (islast) {
+                      
+                      CashHelper.setData(key: "onboarding", value: false)
+                          .then((value) => Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => LoginScreen(),
-                              ));
-                        }
-                      },
-                      child: Icon(Icons.arrow_forward_ios),
-                    )
-                  ],
+                              )))
+                          .catchError((error) {});
+                    }
+                  },
+                  child: Icon(Icons.arrow_forward_ios),
                 )
-              ]),
+              ],
+            )
+          ]),
         ),
       ),
     );

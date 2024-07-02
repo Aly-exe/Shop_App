@@ -1,8 +1,8 @@
 // ignore_for_file: must_be_immutable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/modules/onboarding/login/bloc/logincubit.dart';
-import 'package:shop_app/modules/onboarding/login/bloc/loginstates.dart';
+import 'package:shop_app/modules/login/bloc/logincubit.dart';
+import 'package:shop_app/modules/login/bloc/loginstates.dart';
 
 
 class LoginScreen extends StatelessWidget {
@@ -47,6 +47,7 @@ class LoginScreen extends StatelessWidget {
                             if (value == null) {
                               return " Email Address can't be empty";
                             }
+                            return null;
                           },
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.email_outlined),
@@ -61,6 +62,7 @@ class LoginScreen extends StatelessWidget {
                           controller: passwordcontroller,
                           validator:  (value) {
                             if (value == null)  return " Password can't be empty please enter password";
+                            return null;
                             
                           },
                           decoration: InputDecoration(
@@ -88,7 +90,8 @@ class LoginScreen extends StatelessWidget {
                               : MaterialButton(
                                   onPressed: () async {
                                     if(formKey.currentState!.validate()){
-                                      LoginCubit.get(context).sendData(
+                                      LoginCubit.get(context).UserLogin(
+                                        context: context,
                                         email: usernamecontroller.text,
                                         password: passwordcontroller.text);
                                     }
